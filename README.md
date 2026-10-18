@@ -163,17 +163,26 @@ MOBI_CORPUS=. go test -run TestARealCorpus -v ./...
 *Pride and Prejudice*, 25 MB, 440 records — 259 of text and 165 JPEGs, Calibre
 9.5.0 — read on 2026-10-18:
 
-| | |
-|---|---|
-| words | **125 816** against the reference's 126 630 |
-| sentences of 60 characters or more | **3 638 of 4 215 found verbatim (86.3%)** |
-| pictures | 164 referenced, **163 carried as bytes**; the remaining one is a `kindle:flow:` SVG, which lives in the KF8 half |
+| | reference | with `html` v0.1.0 | with the fix |
+|---|---|---|---|
+| words | 126 630 | 125 816 | **126 512** |
+| sentences of 60 characters or more | 4 215 | 3 638 (86.3%) | **4 125 (97.9%)** |
 
-⛔ **The 13.7% gap is not in this package.** It is
-[go-richdoc/html#4](https://github.com/go-richdoc/html/issues/4): a space
-following an inline element is dropped, so `<i>Walt Whitman</i> has` comes out
-as one word. A run that reports much better than 86% means that issue is fixed;
-one that reports much worse means something here broke.
+164 pictures referenced, **163 carried as bytes**; the remaining one is a
+`kindle:flow:` SVG, which lives in the KF8 half.
+
+⛔ **The first column's 13.7% gap was not in this package**, and reading this
+book is what found it:
+[go-richdoc/html#4](https://github.com/go-richdoc/html/issues/4) dropped the
+space following an inline element, so `<i>Walt Whitman</i> has` came out as one
+word — under `epub` and `email` too, all along. The third column is the same
+book through the one-line fix
+([go-richdoc/html#7](https://github.com/go-richdoc/html/pull/7)).
+
+⛔ **The 90 that still differ are not prose.** They are the book's list of
+illustrations and its page-number column, which the two renderings lay out
+differently — a vocabulary mismatch, not lost text. A run reporting much worse
+than 97% means something here broke.
 
 ⛔ **And getting the judge symmetric took three readings.** The first said
 76.8%, the second 79.4%, and every "missing" sentence inspected was present: the
