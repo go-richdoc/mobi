@@ -163,7 +163,7 @@ MOBI_CORPUS=. go test -run TestARealCorpus -v ./...
 *Pride and Prejudice*, 25 MB, 440 records — 259 of text and 165 JPEGs, Calibre
 9.5.0 — read on 2026-10-18:
 
-| | reference | with `html` v0.1.0 | with the fix |
+| | reference | with `html` v0.1.0 | with `html` v0.1.2 |
 |---|---|---|---|
 | words | 126 630 | 125 816 | **126 512** |
 | sentences of 60 characters or more | 4 215 | 3 638 (86.3%) | **4 125 (97.9%)** |
@@ -177,7 +177,7 @@ book is what found it:
 space following an inline element, so `<i>Walt Whitman</i> has` came out as one
 word — under `epub` and `email` too, all along. The third column is the same
 book through the one-line fix
-([go-richdoc/html#7](https://github.com/go-richdoc/html/pull/7)).
+(go-richdoc/html v0.1.2).
 
 ⛔ **The 90 that still differ are not prose.** They are the book's list of
 illustrations and its page-number column, which the two renderings lay out
