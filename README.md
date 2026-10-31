@@ -121,6 +121,35 @@ mobi.Limits{
 
 The zero value of each means the default above.
 
+### ⛔ And the ceiling stops the work, not only the answer
+
+A ceiling checked while a document is *built* fires after a delegated parser has
+already allocated everything — a refusal that arrives too late to be a defence.
+It cost [go-richdoc/data](https://github.com/go-richdoc/data) 1.275 GB to refuse
+a 16 MiB array, [go-richdoc/html](https://github.com/go-richdoc/html) 96 MB to
+refuse a 3.2 MB page, and [go-richdoc/epub](https://github.com/go-richdoc/epub)
+a node ceiling that bounded each chapter and not the book. All three read as
+correct.
+
+So the control is **ported here and committed**: two books refused by the same
+ceiling, the second holding eight times the text of the first.
+
+| | |
+| --- | --- |
+| 200 408-byte book, refused | **68 480** bytes allocated |
+| 1 600 408-byte book, refused | **68 480** bytes allocated |
+| ratio | **1.0** |
+
+Identical to the byte: `inflate` is handed what is left of the budget and stops
+there, so this reader was already right — and the control stays in the suite to
+keep it that way. An accepted book costs **51.4** bytes of heap per byte, which
+is where HTML content lands across this whole family (the HTML reader's own
+figure is 56.3, and the cost here is mostly its).
+
+⛔ Both figures are byte counts from `runtime.MemStats`, taken at a load average
+above 50. They are exact under any load; a ratio of *durations* would not be,
+so there is no timing claim here.
+
 ## The trap of this format
 
 The bytes at the end of a text record **are not text**, and they are not
