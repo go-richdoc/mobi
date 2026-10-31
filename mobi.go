@@ -99,7 +99,7 @@ func Parse(src []byte, lim Limits) (*richdoc.Document, error) {
 		return nil, err
 	}
 	withPictures := pictures([]byte(text), imageSet(c, h, lim))
-	doc, err := html.Parse(withPictures, html.Limits{MaxDepth: lim.MaxDepth, MaxNodes: lim.MaxNodes})
+	doc, err := html.Parse(withPictures, htmlLimits(lim))
 	if err != nil {
 		return nil, fmt.Errorf("mobi: %q: %w", h.fullName, err)
 	}
