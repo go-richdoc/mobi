@@ -27,6 +27,7 @@ import (
 	"testing"
 
 	"github.com/go-richdoc/richdoc"
+	"github.com/go-richdoc/richdoc/bombtest"
 )
 
 func allocatedBy(t *testing.T, f func() (*richdoc.Document, error)) (total uint64, retained int64, err error) {
@@ -63,17 +64,26 @@ func TestTheTextByteCeilingStopsTheWork(t *testing.T) {
 		large   = 160_000 // eight times as much
 	)
 
+	// ⛔ Through the shared gate, which asserts the refusal, holds the process
+	// to HeldAtMost and names a regression past AsksAtMost — and refuses a
+	// Bound that left any of those unanswered BEFORE the bomb allocates. The
+	// figure is this package's own: inflate is handed what is left of the
+	// budget and stops there, so a refusal costs about 68 KB whatever the
+	// book's size, and 1 MiB names a regression the moment that stops holding.
+	bound := bombtest.Bound{
+		Why:        "MaxTextBytes refuses inside PalmDOC decompression",
+		AsksAtMost: 1 << 20,
+		HeldAtMost: 256 << 20,
+	}
 	cost := func(n int) uint64 {
 		src := plainBook(t, "<html><body>"+strings.Repeat("<p>one</p>", n)+"</body></html>",
 			header0{title: "A Book"})
-		total, _, err := allocatedBy(t, func() (*richdoc.Document, error) {
-			return Parse(src, Limits{MaxTextBytes: ceiling})
+		r := bombtest.Run(t, bound, func() error {
+			_, err := Parse(src, Limits{MaxTextBytes: ceiling})
+			return err
 		})
-		if err == nil {
-			t.Fatalf("%d paragraphs against a %d byte ceiling was accepted", n, ceiling)
-		}
-		t.Logf("%d paragraphs, book %d bytes, refused: %d allocated", n, len(src), total)
-		return total
+		t.Logf("%d paragraphs, book %d bytes: %s", n, len(src), r)
+		return r.Asked
 	}
 
 	s, l := cost(small), cost(large)
